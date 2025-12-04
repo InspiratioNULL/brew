@@ -192,7 +192,7 @@ module OS
       # reproducible bottles.
       def consistent_reproducible_symlink_permissions!
         path.find do |file|
-          File.lchmod 0777, file if file.symlink?
+          file.lchmod 0777 if file.symlink?
         end
       end
     end

@@ -164,7 +164,11 @@ class Keg
   ).sort.uniq.freeze
   end
 
-  attr_reader :path, :name, :linked_keg_record, :opt_record
+  sig { returns(String) }
+  attr_reader :name
+
+  sig { returns(Pathname) }
+  attr_reader :path, :linked_keg_record, :opt_record
 
   protected :path
 
@@ -188,6 +192,7 @@ class Keg
     @require_relocation = false
   end
 
+  sig { returns(Pathname) }
   def rack
     path.parent
   end

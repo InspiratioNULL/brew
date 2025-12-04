@@ -35,13 +35,6 @@ class CompilerFailure
   sig { params(_: String).void }
   def cause(_); end
 
-  sig { params(standard: Symbol).returns(T::Array[CompilerFailure]) }
-  def self.for_standard(standard)
-    COLLECTIONS.fetch(standard) do
-      raise ArgumentError, "\"#{standard}\" is not a recognized standard"
-    end
-  end
-
   sig {
     params(spec: T.any(Symbol, T::Hash[Symbol, String]), block: T.nilable(T.proc.void)).returns(T.attached_class)
   }
@@ -101,13 +94,6 @@ class CompilerFailure
   def gcc_major(version)
     Version.new(version.major.to_s)
   end
-
-  COLLECTIONS = T.let({
-    openmp: [
-      create(:clang),
-    ],
-  }.freeze, T::Hash[Symbol, T::Array[CompilerFailure]])
-  private_constant :COLLECTIONS
 end
 
 # Class for selecting a compiler for a formula.

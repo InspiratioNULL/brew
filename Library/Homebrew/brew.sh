@@ -57,7 +57,7 @@ then
 
   HOMEBREW_MACOS_VERSION="$(/usr/bin/sw_vers -productVersion)"
 
-  IFS=. read -r -a MACOS_VERSION_ARRAY <<<"${HOMEBREW_MACOS_VERSION}"
+  IFS=. read -r -a MACOS_VERSION_ARRAY < <(printf '%s' "${HOMEBREW_MACOS_VERSION}")
   printf -v HOMEBREW_MACOS_VERSION_NUMERIC "%02d%02d%02d" "${MACOS_VERSION_ARRAY[@]}"
 
   unset MACOS_VERSION_ARRAY
@@ -617,7 +617,7 @@ then
     HOMEBREW_PHYSICAL_PROCESSOR="arm64"
   fi
 
-  IFS=. read -r -a MACOS_VERSION_ARRAY <<<"${HOMEBREW_MACOS_OLDEST_ALLOWED}"
+  IFS=. read -r -a MACOS_VERSION_ARRAY < <(printf '%s' "${HOMEBREW_MACOS_OLDEST_ALLOWED}")
   printf -v HOMEBREW_MACOS_OLDEST_ALLOWED_NUMERIC "%02d%02d%02d" "${MACOS_VERSION_ARRAY[@]}"
 
   unset MACOS_VERSION_ARRAY
@@ -693,7 +693,7 @@ Minimum required version: ${HOMEBREW_MINIMUM_CURL_VERSION}
   git_version_output="$(${HOMEBREW_GIT} --version 2>/dev/null)"
   # $extra is intentionally discarded.
   # shellcheck disable=SC2034
-  IFS='.' read -r major minor micro build extra <<<"${git_version_output##* }"
+  IFS='.' read -r major minor micro build extra < <(printf '%s' "${git_version_output##* }")
   if [[ "$(numeric "${major}.${minor}.${micro}.${build}")" -lt "$(numeric "${HOMEBREW_MINIMUM_GIT_VERSION}")" ]]
   then
     message="Please update your system Git or set HOMEBREW_GIT_PATH to a newer version.

@@ -4381,20 +4381,20 @@ class Formula
       specs.each { |spec| spec.fails_with(compiler, &block) }
     end
 
-    # Marks the {Formula} as needing a certain standard, so Homebrew
-    # will fall back to other compilers if the default compiler
-    # does not implement that standard.
+    # Used to mark the {Formula} as needing a certain standard, so Homebrew
+    # would fall back to other compilers if the default compiler
+    # did not implement that standard.
     #
-    # We generally prefer to {.depends_on} a desired compiler and to
-    # explicitly use that compiler in a formula's {#install} block,
+    # This is now a no-op as we prefer to {.depends_on} a desired compiler
+    # and explicitly use that compiler in a formula's {#install} block,
     # rather than implicitly finding a suitable compiler with `needs`.
     #
     # @see .fails_with
     #
     # @api public
-    sig { params(standards: Symbol).void }
-    def needs(*standards)
-      specs.each { |spec| spec.needs(*standards) }
+    sig { params(_standards: Symbol).void }
+    def needs(*_standards)
+      odeprecated "`needs :openmp`", '`depends_on "gcc"`'
     end
 
     # A test is required for new formulae and makes us happy.
