@@ -185,8 +185,8 @@ module Kernel
     out.close
   end
 
-  # Ensure the given executable is exist otherwise install the brewed version
-  sig { params(name: String, formula_name: T.nilable(String), reason: String, latest: T::Boolean).returns(T.nilable(Pathname)) }
+  # Ensure the given executable exists otherwise install the brewed version
+  sig { params(name: String, formula_name: T.nilable(String), reason: String, latest: T::Boolean).returns(Pathname) }
   def ensure_executable!(name, formula_name = nil, reason: "", latest: false)
     formula_name ||= name
 
@@ -197,8 +197,8 @@ module Kernel
       # path where available, since the former is stable during upgrades.
       HOMEBREW_PREFIX/"opt/#{formula_name}/bin/#{name}",
       HOMEBREW_PREFIX/"bin/#{name}",
-    ].compact.first
-    return executable if executable.exist?
+    ].compact.find(&:exist?)
+    return executable if executable
 
     require "formula"
     Formulary.factory_stub(formula_name).ensure_installed!(reason:, latest:).opt_bin/name
