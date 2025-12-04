@@ -230,10 +230,11 @@ module Homebrew
           ls_args << "-r" if args.r?
           ls_args << "-t" if args.t?
 
-          if T.unsafe(args).eval_all? || !args.cask?
-            if T.unsafe(args).eval_all? && !args.cask?
+          # List formulae if --cask is not specified
+          unless args.cask?
+            if T.unsafe(args).eval_all?
               # List all available formulae
-              ohai "Formulae" if $stdout.tty? && !args.formula?
+              ohai "Formulae" if $stdout.tty?
               all_formulae = Formula.all(eval_all: true).map(&:name).sort
               puts Formatter.columns(all_formulae) unless all_formulae.empty?
               puts if $stdout.tty? && !args.formula?
@@ -244,10 +245,11 @@ module Homebrew
             end
           end
 
-          if T.unsafe(args).eval_all? || !args.formula?
-            if T.unsafe(args).eval_all? && !args.formula?
+          # List casks if --formula is not specified
+          unless args.formula?
+            if T.unsafe(args).eval_all?
               # List all available casks
-              ohai "Casks" if $stdout.tty? && !args.cask?
+              ohai "Casks" if $stdout.tty?
               all_casks = Cask::Cask.all(eval_all: true).map(&:token).sort
               puts Formatter.columns(all_casks) unless all_casks.empty?
             elsif Cask::Caskroom.any_casks_installed?
