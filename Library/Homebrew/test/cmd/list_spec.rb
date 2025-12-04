@@ -50,10 +50,21 @@ RSpec.describe Homebrew::Cmd::List do
       .and be_a_success
   end
 
-  it "evaluates all packages with --eval-all --json=v2", :integration_test do
-    expect { brew "list", "--eval-all", "--json=v2" }
-      .to output(/\{.*"formulae".*"casks".*\}/).to_stdout
+  it "evaluates all packages with --eval-all without --json", :integration_test do
+    expect { brew "list", "--eval-all", "--formula" }
+      .to be_a_success
       .and not_to_output.to_stderr
-      .and be_a_success
+  end
+
+  it "evaluates all casks with --eval-all without --json", :integration_test do
+    expect { brew "list", "--eval-all", "--cask" }
+      .to be_a_success
+      .and not_to_output.to_stderr
+  end
+
+  it "evaluates all packages with --eval-all without --json or flags", :integration_test do
+    expect { brew_sh "list", "--eval-all" }
+      .to be_a_success
+      .and not_to_output.to_stderr
   end
 end

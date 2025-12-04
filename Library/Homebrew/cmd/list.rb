@@ -149,13 +149,25 @@ module Homebrew
            !(args.installed_on_request? || args.installed_as_dependency? ||
              args.poured_from_bottle? || args.built_from_source?)
           unless args.cask?
-            formula_names = args.no_named? ? Formula.installed : args.named.to_resolved_formulae
+            formula_names = if T.unsafe(args).eval_all?
+              Formula.all(eval_all: true)
+            elsif args.no_named?
+              Formula.installed
+            else
+              args.named.to_resolved_formulae
+            end
             full_formula_names = formula_names.map(&:full_name).sort(&tap_and_name_comparison)
             full_formula_names = Formatter.columns(full_formula_names) unless args.public_send(:"1?")
             puts full_formula_names if full_formula_names.present?
           end
           if args.cask? || (!args.formula? && args.no_named?)
-            cask_names = if args.no_named?
+            cask_names = if T.unsafe(args).eval_all?
+              if args.no_named?
+                Cask::Cask.all(eval_all: true)
+              else
+                args.named.to_casks
+              end
+            elsif args.no_named?
               Cask::Caskroom.casks
             else
               args.named.to_formulae_and_casks(only: :cask, method: :resolve)
@@ -218,14 +230,30 @@ module Homebrew
           ls_args << "-r" if args.r?
           ls_args << "-t" if args.t?
 
-          if !args.cask? && HOMEBREW_CELLAR.exist? && HOMEBREW_CELLAR.children.any?
-            ohai "Formulae" if $stdout.tty? && !args.formula?
-            safe_system "ls", *ls_args, HOMEBREW_CELLAR
-            puts if $stdout.tty? && !args.formula?
+          if T.unsafe(args).eval_all? || !args.cask?
+            if T.unsafe(args).eval_all? && !args.cask?
+              # List all available formulae
+              ohai "Formulae" if $stdout.tty? && !args.formula?
+              all_formulae = Formula.all(eval_all: true).map(&:name).sort
+              puts Formatter.columns(all_formulae) unless all_formulae.empty?
+              puts if $stdout.tty? && !args.formula?
+            elsif HOMEBREW_CELLAR.exist? && HOMEBREW_CELLAR.children.any?
+              ohai "Formulae" if $stdout.tty? && !args.formula?
+              safe_system "ls", *ls_args, HOMEBREW_CELLAR
+              puts if $stdout.tty? && !args.formula?
+            end
           end
-          if !args.formula? && Cask::Caskroom.any_casks_installed?
-            ohai "Casks" if $stdout.tty? && !args.cask?
-            safe_system "ls", *ls_args, Cask::Caskroom.path
+
+          if T.unsafe(args).eval_all? || !args.formula?
+            if T.unsafe(args).eval_all? && !args.formula?
+              # List all available casks
+              ohai "Casks" if $stdout.tty? && !args.cask?
+              all_casks = Cask::Cask.all(eval_all: true).map(&:token).sort
+              puts Formatter.columns(all_casks) unless all_casks.empty?
+            elsif Cask::Caskroom.any_casks_installed?
+              ohai "Casks" if $stdout.tty? && !args.cask?
+              safe_system "ls", *ls_args, Cask::Caskroom.path
+            end
           end
         else
           kegs, casks = args.named.to_kegs_to_casks
