@@ -46,7 +46,7 @@ To qualify as Tier 1, a Linux configuration must meet all of the following:
 - Using a system `glibc` version ≥ 2.35
 - Using a Linux kernel version ≥ 3.2
 - Installed in the default prefix: `/home/linuxbrew/.linuxbrew`
-- Using a supported architecture (ARM64/AArch64 or Intel x86_64)
+- Using a supported architecture (ARM64/AArch64 or Intel x86_64 with SSSE3 support)
 - Not building official packages from source (i.e. using bottles)
 - Running with `sudo` access available
 

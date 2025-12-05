@@ -654,6 +654,15 @@ then
   # Some Git versions are too old for some Homebrew functionality we rely on.
   HOMEBREW_MINIMUM_GIT_VERSION="2.14.3"
 else
+  if [[ -r "/proc/cpuinfo" ]] &&
+     [[ "${HOMEBREW_PROCESSOR}" == "x86_64" ]]
+  then
+    if ! grep -E "^(flags|Features)" /proc/cpuinfo | grep -q "ssse3"
+    then
+      odie "Homebrew's x86_64 support on Linux requires a CPU with SSSE3 support!"
+    fi
+  fi
+
   HOMEBREW_PRODUCT="${HOMEBREW_SYSTEM}brew"
   # Don't try to follow /etc/os-release
   # shellcheck disable=SC1091,SC2154
