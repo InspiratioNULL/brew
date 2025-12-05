@@ -9,6 +9,7 @@ require "cask/list"
 require "system_command"
 require "tab"
 require "json"
+require "descriptions"
 
 module Homebrew
   module Cmd
@@ -48,6 +49,8 @@ module Homebrew
                description: "List the formulae installed from a bottle."
         switch "--built-from-source",
                description: "List the formulae compiled from source."
+        switch "--desc",
+               description: "Show descriptions for listed formulae and casks."
         flag   "--json",
                description: "Print output in JSON format. There are two versions: `v1` and `v2`. " \
                             "`v1` is deprecated and is currently the default if no version is specified. " \
@@ -91,6 +94,11 @@ module Homebrew
           conflicts "--full-name", flag
         end
 
+        ["--versions", "--pinned", "--installed-on-request", "--installed-as-dependency",
+         "--poured-from-bottle", "--built-from-source", "-1", "-l", "-r", "-t"].each do |flag|
+          conflicts "--desc", flag
+        end
+
         named_args [:installed_formula, :installed_cask]
       end
 
@@ -112,8 +120,6 @@ module Homebrew
           else
             []
           end
-        elsif T.unsafe(args).formula?
-          args.no_named? ? Formula.installed : args.named.to_resolved_formulae
         elsif T.unsafe(args).cask?
           []
         else
@@ -145,9 +151,11 @@ module Homebrew
 
       sig { void }
       def legacy_list
-        if args.full_name? &&
-           !(args.installed_on_request? || args.installed_as_dependency? ||
-             args.poured_from_bottle? || args.built_from_source?)
+        if args.desc?
+          list_descriptions
+        elsif args.full_name? &&
+              !(args.installed_on_request? || args.installed_as_dependency? ||
+                args.poured_from_bottle? || args.built_from_source?)
           unless args.cask?
             formula_names = if T.unsafe(args).eval_all?
               Formula.all(eval_all: true)
@@ -294,6 +302,7 @@ module Homebrew
             full_name: formula.full_name,
             version:   formula.version.to_s,
             installed: formula.rack.exist?,
+            desc:      formula.desc,
           }
         end
       end
@@ -310,11 +319,53 @@ module Homebrew
             full_name: cask.full_name,
             version:   cask.version.to_s,
             installed: cask.installed?,
+            desc:      cask.desc,
           }
         end
       end
 
       private
+
+      sig { void }
+      def list_descriptions
+        formulae = if T.unsafe(args).eval_all?
+          if T.unsafe(args).formula? || (!T.unsafe(args).cask? && !T.unsafe(args).formula?)
+            Formula.all(eval_all: true)
+          else
+            []
+          end
+        elsif T.unsafe(args).cask?
+          []
+        else
+          args.no_named? ? Formula.installed : args.named.to_resolved_formulae
+        end
+
+        casks = if T.unsafe(args).eval_all?
+          if T.unsafe(args).cask? || (!T.unsafe(args).cask? && !T.unsafe(args).formula?)
+            Cask::Cask.all(eval_all: true)
+          else
+            []
+          end
+        elsif T.unsafe(args).cask?
+          args.no_named? ? Cask::Cask.all(eval_all: true) : args.named.to_casks
+        elsif T.unsafe(args).formula?
+          []
+        else
+          args.no_named? ? Cask::Caskroom.casks : args.named.to_casks
+        end
+
+        descriptions = {}
+
+        formulae.each do |formula|
+          descriptions[formula.full_name] = formula.desc
+        end
+
+        casks.each do |cask|
+          descriptions[cask.full_name] = [cask.name.join(", "), cask.desc.presence]
+        end
+
+        Descriptions.new(descriptions).print
+      end
 
       sig { void }
       def filtered_list
