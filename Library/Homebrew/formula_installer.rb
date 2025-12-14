@@ -1492,13 +1492,14 @@ on_request: installed_on_request?, options:)
 
       formula.rack.mkpath
 
-      # Download queue has already extracted the bottle to a temporary directory.
-      bottle_tmp_keg = if download_queue
-        formula_prefix_relative_to_cellar = formula.prefix.relative_path_from(HOMEBREW_CELLAR)
-        HOMEBREW_TEMP_CELLAR/formula_prefix_relative_to_cellar
-      end
+      # Download queue may have already extracted the bottle to a temporary directory.
+      # We cannot check `download_queue` as it is nil when pouring dependencies.
+      formula_prefix_relative_to_cellar = formula.prefix.relative_path_from(HOMEBREW_CELLAR)
+      bottle_tmp_keg = HOMEBREW_TEMP_CELLAR/formula_prefix_relative_to_cellar
+      bottle_poured_file = Pathname("#{bottle_tmp_keg}.poured")
 
-      if bottle_tmp_keg&.exist?
+      if bottle_poured_file.exist?
+        FileUtils.rm(bottle_poured_file)
         FileUtils.mv(bottle_tmp_keg, formula.prefix)
         bottle_tmp_keg.parent.rmdir_if_possible
       else

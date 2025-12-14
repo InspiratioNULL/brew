@@ -8,7 +8,7 @@
 # HOMEBREW_AUTO_UPDATE_SECS, HOMEBREW_BREW_DEFAULT_GIT_REMOTE, HOMEBREW_BREW_GIT_REMOTE, HOMEBREW_CACHE,
 # HOMEBREW_CASK_REPOSITORY, HOMEBREW_CELLAR, HOMEBREW_CORE_DEFAULT_GIT_REMOTE, HOMEBREW_CORE_GIT_REMOTE,
 # HOMEBREW_CORE_REPOSITORY, HOMEBREW_CURL, HOMEBREW_DEV_CMD_RUN, HOMEBREW_FORCE_BREWED_CA_CERTIFICATES,
-# HOMEBREW_FORCE_BREWED_CURL, HOMEBREW_FORCE_BREWED_GIT, HOMEBREW_LINUXBREW_CORE_MIGRATION,
+# HOMEBREW_FORCE_BREWED_CURL, HOMEBREW_FORCE_BREWED_GIT,
 # HOMEBREW_SYSTEM_CURL_TOO_OLD, HOMEBREW_USER_AGENT_CURL are set by brew.sh
 # shellcheck disable=SC2154
 source "${HOMEBREW_LIBRARY}/Homebrew/utils/lock.sh"
@@ -331,13 +331,7 @@ EOS
   # make sure symlinks are saved as-is
   git config --bool core.symlinks true
 
-  if [[ "${DIR}" == "${HOMEBREW_CORE_REPOSITORY}" && -n "${HOMEBREW_LINUXBREW_CORE_MIGRATION}" ]]
-  then
-    # Don't even try to rebase/merge on linuxbrew-core migration but rely on
-    # stashing etc. above.
-    git reset --hard "${QUIET_ARGS[@]}" "${REMOTE_REF}"
-    unset HOMEBREW_LINUXBREW_CORE_MIGRATION
-  elif [[ -z "${HOMEBREW_MERGE}" ]]
+  if [[ -z "${HOMEBREW_MERGE}" ]]
   then
     # Work around bug where git rebase --quiet is not quiet
     if [[ -z "${HOMEBREW_VERBOSE}" ]]
@@ -671,8 +665,7 @@ EOS
   fi
 
   if [[ -d "${HOMEBREW_CORE_REPOSITORY}" ]] &&
-     [[ "${HOMEBREW_CORE_DEFAULT_GIT_REMOTE}" != "${HOMEBREW_CORE_GIT_REMOTE}" ||
-        -n "${HOMEBREW_LINUXBREW_CORE_MIGRATION}" ]]
+     [[ "${HOMEBREW_CORE_DEFAULT_GIT_REMOTE}" != "${HOMEBREW_CORE_GIT_REMOTE}" ]]
   then
     safe_cd "${HOMEBREW_CORE_REPOSITORY}"
     echo "HOMEBREW_CORE_GIT_REMOTE set: using ${HOMEBREW_CORE_GIT_REMOTE} as the Homebrew/homebrew-core Git remote."

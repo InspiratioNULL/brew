@@ -887,7 +887,7 @@ class Formula
   #
   # @api internal
   sig { returns(T::Boolean) }
-  def linked? = linked_keg.symlink?
+  def linked? = linked_keg.exist?
 
   # Is the formula linked to `opt`?
   sig { returns(T::Boolean) }
@@ -1591,6 +1591,13 @@ class Formula
   # @see .deprecate!
   delegate deprecation_replacement_cask: :"self.class"
 
+  # The arguments that were used to deprecate this {Formula}.
+  # Returns `nil` if `deprecate!` was not called.
+  # @!method deprecate_args
+  # @return [Hash<Symbol, Object>]
+  # @api private
+  delegate deprecate_args: :"self.class"
+
   # Whether this {Formula} is disabled (i.e. cannot be installed).
   # Defaults to false.
   # @!method disabled?
@@ -1625,6 +1632,13 @@ class Formula
   # @return [String]
   # @see .disable!
   delegate disable_replacement_cask: :"self.class"
+
+  # The arguments that were used to disable this {Formula}.
+  # Returns `nil` if `disable!` was not called.
+  # @!method disable_args
+  # @return [Hash<Symbol, Object>]
+  # @api private
+  delegate disable_args: :"self.class"
 
   sig { returns(T::Boolean) }
   def skip_cxxstdlib_check?
@@ -2700,11 +2714,13 @@ class Formula
       "deprecation_reason"              => deprecation_reason,
       "deprecation_replacement_formula" => deprecation_replacement_formula,
       "deprecation_replacement_cask"    => deprecation_replacement_cask,
+      "deprecate_args"                  => deprecate_args,
       "disabled"                        => disabled?,
       "disable_date"                    => disable_date,
       "disable_reason"                  => disable_reason,
       "disable_replacement_formula"     => disable_replacement_formula,
       "disable_replacement_cask"        => disable_replacement_cask,
+      "disable_args"                    => disable_args,
       "post_install_defined"            => post_install_defined?,
       "service"                         => (service.to_hash if service?),
       "tap_git_head"                    => tap_git_head,
@@ -3602,14 +3618,14 @@ class Formula
     # @see https://spdx.github.io/spdx-spec/latest/annexes/spdx-license-expressions/ SPDX license expression guide
     # @api public
     sig {
-      params(args: T.nilable(T.any(String, Symbol, T::Hash[T.any(String, Symbol), T.anything])))
-        .returns(T.nilable(T.any(String, Symbol, T::Hash[T.any(String, Symbol), T.anything])))
+      params(args: T.nilable(SPDX::LicenseExpression))
+        .returns(T.nilable(SPDX::LicenseExpression))
     }
     def license(args = nil)
       if args.nil?
         @licenses
       else
-        @licenses = T.let(args, T.nilable(T.any(String, Symbol, T::Hash[T.any(String, Symbol), T.anything])))
+        @licenses = T.let(args, T.nilable(SPDX::LicenseExpression))
       end
     end
 
@@ -3936,7 +3952,7 @@ class Formula
     # ```
     #
     # @api public
-    sig { params(block: T.nilable(T.proc.returns(SoftwareSpec))).returns(T.untyped) }
+    sig { params(block: T.nilable(T.proc.void)).returns(T.untyped) }
     def stable(&block)
       return T.must(@stable) unless block
 
@@ -4624,13 +4640,18 @@ class Formula
         )
       end
 
+      @deprecate_args = T.let(
+        { date:, because:, replacement_formula:, replacement_cask: },
+        T.nilable(T::Hash[Symbol, T.nilable(T.any(String, Symbol))]),
+      )
+
       @deprecation_date = T.let(Date.parse(date), T.nilable(Date))
       return if T.must(@deprecation_date) > Date.today
 
       @deprecation_reason = T.let(because, T.nilable(T.any(String, Symbol)))
       @deprecation_replacement_formula = T.let(replacement_formula.presence || replacement, T.nilable(String))
       @deprecation_replacement_cask = T.let(replacement_cask.presence || replacement, T.nilable(String))
-      T.must(@deprecated = T.let(true, T.nilable(T::Boolean)))
+      @deprecated = T.let(true, T.nilable(T::Boolean))
     end
 
     # Whether this {Formula} is deprecated (i.e. warns on installation).
@@ -4669,6 +4690,14 @@ class Formula
     # @see .deprecate!
     sig { returns(T.nilable(String)) }
     attr_reader :deprecation_replacement_cask
+
+    # The arguments that were passed to deprecate!.
+    #
+    # @return [nil] if deprecate! was not called.
+    # @see .deprecate!
+    # @api private
+    sig { returns(T.nilable(T::Hash[Symbol, T.nilable(T.any(String, Symbol))])) }
+    attr_reader :deprecate_args
 
     # Disables a {Formula} (on the given date) so it cannot be
     # installed. If the date has not yet passed the formula
@@ -4712,9 +4741,14 @@ class Formula
       if replacement
         odeprecated(
           "disable!(:replacement)",
-          "disable!(:replacement_formula) or deprecate!(:replacement_cask)",
+          "disable!(:replacement_formula) or disable!(:replacement_cask)",
         )
       end
+
+      @disable_args = T.let(
+        { date:, because:, replacement_formula:, replacement_cask: },
+        T.nilable(T::Hash[Symbol, T.nilable(T.any(String, Symbol))]),
+      )
 
       @disable_date = T.let(Date.parse(date), T.nilable(Date))
 
@@ -4768,6 +4802,14 @@ class Formula
     # @see .disable!
     sig { returns(T.nilable(String)) }
     attr_reader :disable_replacement_cask
+
+    # The arguments that were passed to disable!.
+    #
+    # @return [nil] if disable! was not called.
+    # @see .disable!
+    # @api private
+    sig { returns(T.nilable(T::Hash[Symbol, T.nilable(T.any(String, Symbol))])) }
+    attr_reader :disable_args
 
     # Permit overwriting certain files while linking.
     #
