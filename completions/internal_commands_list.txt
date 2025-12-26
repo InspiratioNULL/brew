@@ -114,6 +114,7 @@ unalias
 unbottled
 uninstall
 unlink
+unlinked
 unpack
 unpin
 untap

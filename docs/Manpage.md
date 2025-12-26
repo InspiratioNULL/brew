@@ -1646,6 +1646,11 @@ brew link` *`formula`*
 : List files which would be unlinked without actually unlinking or deleting any
   files.
 
+### `unlinked`
+
+List installed formulae that are not linked, excluding keg-only formulae (since
+those are expected to be unlinked anyway).
+
 ### `unpin` *`installed_formula`* \[...\]
 
 Unpin *`formula`*, allowing them to be upgraded by `brew upgrade` *`formula`*.

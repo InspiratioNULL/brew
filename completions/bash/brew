@@ -2846,6 +2846,22 @@ _brew_unlink() {
   __brew_complete_installed_formulae
 }
 
+_brew_unlinked() {
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  case "${cur}" in
+    -*)
+      __brewcomp "
+      --debug
+      --help
+      --quiet
+      --verbose
+      "
+      return
+      ;;
+    *) ;;
+  esac
+}
+
 _brew_unpack() {
   local cur="${COMP_WORDS[COMP_CWORD]}"
   case "${cur}" in
@@ -3435,6 +3451,7 @@ _brew() {
     uninstal) _brew_uninstal ;;
     uninstall) _brew_uninstall ;;
     unlink) _brew_unlink ;;
+    unlinked) _brew_unlinked ;;
     unpack) _brew_unpack ;;
     unpin) _brew_unpin ;;
     untap) _brew_untap ;;

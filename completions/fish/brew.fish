@@ -1855,6 +1855,13 @@ __fish_brew_complete_arg 'unlink' -l verbose -d 'Make some output more verbose'
 __fish_brew_complete_arg 'unlink' -a '(__fish_brew_suggest_formulae_installed)'
 
 
+__fish_brew_complete_cmd 'unlinked' 'List installed formulae that are not linked, excluding keg-only formulae (since those are expected to be unlinked anyway)'
+__fish_brew_complete_arg 'unlinked' -l debug -d 'Display any debugging information'
+__fish_brew_complete_arg 'unlinked' -l help -d 'Show this message'
+__fish_brew_complete_arg 'unlinked' -l quiet -d 'Make some output more quiet'
+__fish_brew_complete_arg 'unlinked' -l verbose -d 'Make some output more verbose'
+
+
 __fish_brew_complete_cmd 'unpack' 'Unpack the files for the formula or cask into subdirectories of the current working directory'
 __fish_brew_complete_arg 'unpack' -l cask -d 'Treat all named arguments as casks'
 __fish_brew_complete_arg 'unpack' -l debug -d 'Display any debugging information'

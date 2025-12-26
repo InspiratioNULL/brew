@@ -233,6 +233,7 @@ __brew_internal_commands() {
     'unbottled:Show the unbottled dependents of formulae'
     'uninstall:Uninstall a formula or cask'
     'unlink:Remove symlinks for formula from Homebrew'\''s prefix'
+    'unlinked:List installed formulae that are not linked, excluding keg-only formulae (since those are expected to be unlinked anyway)'
     'unpack:Unpack the files for the formula or cask into subdirectories of the current working directory'
     'unpin:Unpin formula, allowing them to be upgraded by `brew upgrade` formula'
     'untap:Remove a tapped formula repository'
@@ -2276,6 +2277,15 @@ _brew_unlink() {
     '--verbose[Make some output more verbose]' \
     - installed_formula \
     '*:installed_formula:__brew_installed_formulae'
+}
+
+# brew unlinked
+_brew_unlinked() {
+  _arguments \
+    '--debug[Display any debugging information]' \
+    '--help[Show this message]' \
+    '--quiet[Make some output more quiet]' \
+    '--verbose[Make some output more verbose]'
 }
 
 # brew unpack

@@ -1022,6 +1022,8 @@ Remove symlinks for \fIformula\fP from Homebrew\[u2019]s prefix\. This can be us
 .TP
 \fB\-n\fP, \fB\-\-dry\-run\fP
 List files which would be unlinked without actually unlinking or deleting any files\.
+.SS "\fBunlinked\fP"
+List installed formulae that are not linked, excluding keg\-only formulae (since those are expected to be unlinked anyway)\.
 .SS "\fBunpin\fP \fIinstalled_formula\fP \fR[\.\.\.]"
 Unpin \fIformula\fP, allowing them to be upgraded by \fBbrew upgrade\fP \fIformula\fP\&\. See also \fBpin\fP\&\.
 .SS "\fBuntap\fP \fR[\fB\-\-force\fP] \fItap\fP \fR[\.\.\.]"
