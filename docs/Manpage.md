@@ -1646,10 +1646,19 @@ brew link` *`formula`*
 : List files which would be unlinked without actually unlinking or deleting any
   files.
 
-### `unlinked`
+### `unlinked` \[`--why`\] \[`--desc`\]
 
 List installed formulae that are not linked, excluding keg-only formulae (since
 those are expected to be unlinked anyway).
+
+`--why`
+
+: Show why each formula is unlinked (conflict with another formula, external
+  file exists, or manually unlinked).
+
+`--desc`
+
+: Show formula descriptions.
 
 ### `unpin` *`installed_formula`* \[...\]
 

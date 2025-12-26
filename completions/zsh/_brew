@@ -2283,9 +2283,11 @@ _brew_unlink() {
 _brew_unlinked() {
   _arguments \
     '--debug[Display any debugging information]' \
+    '--desc[Show formula descriptions]' \
     '--help[Show this message]' \
     '--quiet[Make some output more quiet]' \
-    '--verbose[Make some output more verbose]'
+    '--verbose[Make some output more verbose]' \
+    '--why[Show why each formula is unlinked (conflict with another formula, external file exists, or manually unlinked)]'
 }
 
 # brew unpack
