@@ -227,7 +227,7 @@ flags which will help with finding keg-only dependencies like `openssl`,
 : Read from or write to the `Brewfile` from this location. Use `--file=-` to
   pipe to stdin/stdout.
 
-`--global`
+`-g`, `--global`
 
 : Read from or write to the `Brewfile` from `$HOMEBREW_BUNDLE_FILE_GLOBAL` (if
   set), `${XDG_CONFIG_HOME}/homebrew/Brewfile` (if `$XDG_CONFIG_HOME` is set),
